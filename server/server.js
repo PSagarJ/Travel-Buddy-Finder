@@ -1,35 +1,71 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import connectDB from './src/config/db.js';
-import userRoutes from './src/routes/userRoutes.js'; // <-- NEW IMPORT
-import tripRoutes from './src/routes/tripRoutes.js'; // <-- NEW IMPORT
-import matchRoutes from './src/routes/matchRoutes.js';
+import http from 'http'; // <-- NEW: Built-in Node module
+import { Server } from 'socket.io'; // <-- NEW: Socket.io
 
-// Load environment variables from the .env file
+// Import Routes
+import userRoutes from './src/routes/userRoutes.js';
+import tripRoutes from './src/routes/tripRoutes.js';
+import matchRoutes from './src/routes/matchRoutes.js';
+import expenseRoutes from './src/routes/expenseRoutes.js';
+
 dotenv.config();
 
-// Connect to MongoDB
-connectDB();
-
-// Initialize Express
 const app = express();
 
+// --- NEW: Wrap Express with HTTP Server for Socket.io ---
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", // Allow your Vite React app to connect
+    methods: ["GET", "POST"]
+  }
+});
+// --------------------------------------------------------
+
 // Middlewares
-app.use(cors()); // Allows your frontend to talk to your backend
-app.use(express.json()); // Allows your server to accept JSON data
+app.use(express.json());
+app.use(cors());
 
-app.use('/api/users',userRoutes);
-app.use('/api/trips', tripRoutes); // <-- NEW CONNECTION
-app.use('/api/matches', matchRoutes); // <-- NEW CONNECTION
+// Routes
+app.use('/api/users', userRoutes);
+app.use('/api/trips', tripRoutes);
+app.use('/api/matches', matchRoutes);
+app.use('/api/expenses', expenseRoutes);
 
-// A simple test route
-app.get('/', (req, res) => {
-  res.send('Travel Buddy API is running...');
+// --- NEW: Socket.io Logic (The Chat Engine) ---
+io.on('connection', (socket) => {
+  console.log(`🔌 New User Connected: ${socket.id}`);
+
+  // When a user opens a specific trip chat
+  socket.on('join_trip_room', (tripId) => {
+    socket.join(tripId);
+    console.log(`User ${socket.id} joined Trip Room: ${tripId}`);
+  });
+
+  // When a user hits "send" on a message
+  socket.on('send_message', (messageData) => {
+    // Blast the message to everyone ELSE in that specific trip room
+    socket.to(messageData.tripId).emit('receive_message', messageData);
+  });
+
+  // When a user closes the browser
+  socket.on('disconnect', () => {
+    console.log(`❌ User Disconnected: ${socket.id}`);
+  });
 });
+// ----------------------------------------------
 
-// Start the server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log('MongoDB Connected');
+    // Important: We use server.listen now, NOT app.listen
+    server.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  })
+  .catch((err) => console.log(err));
