@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
 const BudgetSplitter = () => {
-  // Hardcoding the trip ID for our test ledger
-  const tripId = 'trip-101';
+// Grab the exact trip ID from the URL!
+  const { tripId } = useParams(); 
   const members = ['Pratap', 'Amit', 'Sneha'];
 
   const [expenses, setExpenses] = useState([]);

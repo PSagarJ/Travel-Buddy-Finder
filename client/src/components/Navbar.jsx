@@ -18,7 +18,6 @@ const Navbar = () => {
         <Link to="/matches" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>Matches</Link>
         <Link to="/create-trip" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>Post a Trip</Link>
         <Link to="/chat/trip-101" style={{ color: '#f59e0b', textDecoration: 'none', fontWeight: 'bold' }}>Test Chat</Link>
-        <Link to="/budget" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>Ledger</Link>
         <Link to="/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>Dashboard</Link>
         <Link to="/register" style={{ 
           backgroundColor: 'white', 

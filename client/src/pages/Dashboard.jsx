@@ -79,14 +79,21 @@ const Dashboard = () => {
           {myTrips.map(trip => (
             <div key={trip._id} style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', border: '1px solid #e5e7eb' }}>
               
-              {/* Trip Header */}
+{/* Trip Header */}
               <div style={{ background: '#f8fafc', padding: '1.5rem', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <h2 style={{ margin: '0 0 0.5rem 0', color: '#0f172a' }}>{trip.title}</h2>
                   <span style={{ color: '#64748b', fontWeight: 'bold' }}>📍 {trip.destination} • 📅 {trip.startDate}</span>
                 </div>
-                <div style={{ background: '#0284c7', color: 'white', padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                  {trip.approvedMembers?.length || 0} Joined
+                
+                {/* NEW: Button Container */}
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  <a href={`/budget/${trip._id}`} style={{ background: '#f59e0b', color: 'white', padding: '0.5rem 1rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                    View Ledger
+                  </a>
+                  <div style={{ background: '#0284c7', color: 'white', padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                    {trip.approvedMembers?.length || 0} Joined
+                  </div>
                 </div>
               </div>
 
