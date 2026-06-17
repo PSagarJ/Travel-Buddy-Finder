@@ -2,48 +2,41 @@ import mongoose from 'mongoose';
 
 const tripSchema = new mongoose.Schema(
   {
-    title: {
-      type: String,
+    title: { type: String, required: true },
+    destination: { type: String, required: true },
+    // Changed to String temporarily to avoid date-formatting crashes from our HTML inputs
+    startDate: { type: String, required: true }, 
+    endDate: { type: String, required: true },
+    estimatedBudget: { type: Number, required: true },
+    travelStyle: { type: String, required: true },
+    targetVibe: { type: String, required: true },
+    
+    // 💥 CHANGED: Renamed from 'creator' to 'creatorId' to match your frontend
+    creatorId: {
+      type: String, 
       required: true,
     },
-    destination: {
-      type: String,
-      required: true,
-    },
-    startDate: {
-      type: Date,
-      required: true,
-    },
-    endDate: {
-      type: Date,
-      required: true,
-    },
-    // Budget & Matchmaking features
-    estimatedBudget: {
-      type: Number,
-      required: true,
-    },
-    travelStyle: {
-      type: String,
-      enum: ['Backpacker', 'Luxury', 'Budget', 'Adventure', 'Chill'],
-      required: true,
-    },
-    targetVibe: {
-      type: String, // e.g., "Party", "Nature & Hiking", "Historical", "Foodie"
-      required: true,
-    },
-    // Relational Data: Linking Users to Trips
-    creator: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-    participants: [
+
+    // 💥 NEW: The Pending Applicants queue for your Dashboard
+    applicants: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        userId: { type: String },
+        status: { type: String, default: 'pending' }, // 'pending', 'approved', 'rejected'
+        // Optional fields caching data to make Dashboard rendering faster
+        name: { type: String },
+        travelStyle: { type: String },
+        matchScore: { type: Number }
       }
     ],
+
+    // 💥 CHANGED: Renamed from 'participants' to 'approvedMembers' for the Dashboard
+    approvedMembers: [
+      {
+        userId: { type: String },
+        name: { type: String }
+      }
+    ],
+
     status: {
       type: String,
       enum: ['Planning', 'Ongoing', 'Completed'],

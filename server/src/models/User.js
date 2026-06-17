@@ -5,11 +5,14 @@ const userSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
+      trim: true, // 💥 Drops accidental leading/trailing spaces
     },
     email: {
       type: String,
       required: true,
       unique: true,
+      lowercase: true, // 💥 Converts everything to lowercase automatically
+      trim: true,
     },
     password: {
       type: String,
@@ -18,10 +21,10 @@ const userSchema = new mongoose.Schema(
     // Trust & Safety Features
     isGovIdVerified: {
       type: Boolean,
-      default: false, // Users start unverified
+      default: false, 
     },
     govIdUrl: {
-      type: String, // Will hold the AWS S3 link later
+      type: String, 
     },
     // Matchmaking & Gamification Features
     travelStyle: {
@@ -36,7 +39,7 @@ const userSchema = new mongoose.Schema(
     ]
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt dates
+    timestamps: true, 
   }
 );
 

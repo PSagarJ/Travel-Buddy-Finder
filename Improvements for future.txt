@@ -6,3 +6,8 @@ Ledger : Move this from navbar to different location (like where the people from
 
 Matches : In this section add clickable action (like when we click someone's name it shows there interest past travelling done and more info like social media post. )
 
+
+
+3. Add option to delete the posted trip to the person(based on email id).
+
+4. Also have to think about the place where people can upload their images of trips like Instagram.

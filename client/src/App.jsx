@@ -9,6 +9,7 @@ import ChatRoom from './pages/ChatRoom';
 import BudgetSplitter from './pages/BudgetSplitter';
 import UserProfile from './pages/UserProfile'; // Fixed typo in import path
 import Matches from './pages/Matches';
+import Login from './pages/Login';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/chat/:tripId" element={<ChatRoom />} />
         <Route path="/budget/:tripId" element={<BudgetSplitter />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </div>
   );
