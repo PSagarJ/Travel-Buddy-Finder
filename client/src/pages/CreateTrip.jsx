@@ -15,9 +15,6 @@ const CreateTrip = () => {
   });
   const [status, setStatus] = useState('');
 
-  // Hardcoded ID until login is built
-  const currentUserId = '6a13106183dffcf4cf5e0bf4';
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -27,15 +24,23 @@ const CreateTrip = () => {
     setStatus('Drafting your itinerary...');
     
     try {
-      // Send the real data to your Express backend
-      const newTrip = { ...formData, creatorId: currentUserId };
+      // 1. Fetch user data inside the form submission handler
+      const loggedInUser = localStorage.getItem('user');
+      const currentUser = loggedInUser ? JSON.parse(loggedInUser) : null;
+
+      // 2. Build the final request object with the actual logged-in ID
+      const newTrip = { 
+        ...formData, 
+        creatorId: currentUser ? currentUser.id : null 
+      };
+
+      // 3. Post to backend
       await axios.post('http://localhost:5000/api/trips', newTrip);
       
       setStatus('Trip posted successfully! Redirecting...');
       setTimeout(() => navigate('/dashboard'), 1500);
     } catch (error) {
       console.error('Error creating trip:', error);
-      // Smart Fallback if the backend route isn't built yet
       setStatus('✨ Trip layout saved! (Simulated Mode)');
       setTimeout(() => navigate('/dashboard'), 1500);
     }
@@ -48,7 +53,7 @@ const CreateTrip = () => {
       <div style={{ 
         flex: 1, 
         display: 'block', 
-        backgroundImage: 'url("https://images.unsplash.com/photo-1503220317375-aaad61436b1b?q=80&w=2000")', // Epic travel/planning image
+        backgroundImage: 'url("https://images.unsplash.com/photo-1503220317375-aaad61436b1b?q=80&w=2000")', 
         backgroundSize: 'cover', 
         backgroundPosition: 'center',
         position: 'relative'
@@ -79,8 +84,7 @@ const CreateTrip = () => {
             <div>
               <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#334155', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Trip Title</label>
               <input type="text" name="title" value={formData.title} onChange={handleChange} placeholder="e.g., Backpacking the Swiss Alps" required
-                style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none', transition: 'border 0.2s', boxSizing: 'border-box' }}
-                onFocus={e => e.target.style.border = '1px solid #0284c7'} onBlur={e => e.target.style.border = '1px solid #cbd5e1'}
+                style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }}
               />
             </div>
 
@@ -89,15 +93,13 @@ const CreateTrip = () => {
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#334155', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Destination</label>
                 <input type="text" name="destination" value={formData.destination} onChange={handleChange} placeholder="City, Country" required
-                  style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none', transition: 'border 0.2s', boxSizing: 'border-box' }}
-                  onFocus={e => e.target.style.border = '1px solid #0284c7'} onBlur={e => e.target.style.border = '1px solid #cbd5e1'}
+                  style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }}
                 />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#334155', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Est. Budget</label>
                 <input type="number" name="estimatedBudget" value={formData.estimatedBudget} onChange={handleChange} placeholder="$ USD" required
-                  style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none', transition: 'border 0.2s', boxSizing: 'border-box' }}
-                  onFocus={e => e.target.style.border = '1px solid #0284c7'} onBlur={e => e.target.style.border = '1px solid #cbd5e1'}
+                  style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }}
                 />
               </div>
             </div>
@@ -107,15 +109,13 @@ const CreateTrip = () => {
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#334155', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Start Date</label>
                 <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} required
-                  style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none', transition: 'border 0.2s', boxSizing: 'border-box', color: '#334155' }}
-                  onFocus={e => e.target.style.border = '1px solid #0284c7'} onBlur={e => e.target.style.border = '1px solid #cbd5e1'}
+                  style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none', boxSizing: 'border-box', color: '#334155' }}
                 />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#334155', marginBottom: '0.5rem', textTransform: 'uppercase' }}>End Date</label>
                 <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} required
-                  style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none', transition: 'border 0.2s', boxSizing: 'border-box', color: '#334155' }}
-                  onFocus={e => e.target.style.border = '1px solid #0284c7'} onBlur={e => e.target.style.border = '1px solid #cbd5e1'}
+                  style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none', boxSizing: 'border-box', color: '#334155' }}
                 />
               </div>
             </div>
@@ -125,35 +125,25 @@ const CreateTrip = () => {
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#334155', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Travel Style</label>
                 <select name="travelStyle" value={formData.travelStyle} onChange={handleChange}
-                  style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white', fontSize: '1rem', outline: 'none', cursor: 'pointer', boxSizing: 'border-box' }}>
+                  style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white', fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }}>
                   <option value="Adventure">Adventure</option>
-                  <option value="Backpacker">Backpacker</option>
-                  <option value="Luxury">Luxury</option>
-                  <option value="Chill">Chill</option>
+                  <option value="Relaxation">Relaxation</option>
+                  <option value="Cultural">Cultural</option>
                 </select>
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#334155', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Target Vibe</label>
-                <input type="text" name="targetVibe" value={formData.targetVibe} onChange={handleChange} placeholder="e.g., Food & Photography" required
-                  style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none', transition: 'border 0.2s', boxSizing: 'border-box' }}
-                  onFocus={e => e.target.style.border = '1px solid #0284c7'} onBlur={e => e.target.style.border = '1px solid #cbd5e1'}
+                <input type="text" name="targetVibe" value={formData.targetVibe} onChange={handleChange} placeholder="e.g., Chill, Party, Active"
+                  style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }}
                 />
               </div>
             </div>
 
-            {/* Submit Button */}
-            <div style={{ marginTop: '1rem' }}>
-              {status ? (
-                 <div style={{ padding: '1rem', background: '#dcfce7', color: '#166534', borderRadius: '8px', fontWeight: 'bold', textAlign: 'center' }}>{status}</div>
-              ) : (
-                <button type="submit" 
-                  style={{ width: '100%', padding: '1rem', background: '#0284c7', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s, transform 0.1s' }}
-                  onMouseOver={e => e.target.style.background = '#0369a1'} onMouseOut={e => e.target.style.background = '#0284c7'} onMouseDown={e => e.target.style.transform = 'scale(0.98)'} onMouseUp={e => e.target.style.transform = 'scale(1)'}
-                >
-                  Publish Itinerary
-                </button>
-              )}
-            </div>
+            <button type="submit" style={{ background: '#0284c7', color: 'white', border: 'none', padding: '1rem', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s', marginTop: '1rem' }}>
+              Post Trip
+            </button>
+
+            {status && <p style={{ textAlign: 'center', color: '#0284c7', fontWeight: '500', margin: '0' }}>{status}</p>}
 
           </form>
         </div>

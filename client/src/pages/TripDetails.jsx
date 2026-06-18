@@ -18,11 +18,36 @@ const TripDetails = () => {
   const loggedInUser = localStorage.getItem('user');
   const currentUser = loggedInUser ? JSON.parse(loggedInUser) : null;
   const currentUserId = currentUser ? currentUser.id : null;
-  useEffect(() => {
+
+useEffect(() => {
     const fetchTrip = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/trips/${id}`);
-        setTrip(response.data);
+        const tripData = response.data;
+        setTrip(tripData);
+        
+        // 💥 NEW: Check user relationship to this trip immediately on page load
+        if (currentUserId) {
+          if (tripData.creatorId === currentUserId) {
+            // Guardrail: Lock out the creator from applying to their own trip
+            setApplyStatus('👑 You are the manager of this trip itinerary.');
+          } else {
+            // Check if user is already verified inside the crew
+            const isApproved = tripData.approvedMembers?.some(m => m.userId === currentUserId);
+            
+            // Check if user has an active pending application
+            const existingApplication = tripData.applicants?.find(a => a.userId === currentUserId);
+
+            if (isApproved || (existingApplication && existingApplication.status === 'approved')) {
+              setApplyStatus('✨ You are an approved member of this travel crew!');
+            } else if (existingApplication && existingApplication.status === 'pending') {
+              setApplyStatus('📩 Application submitted. Waiting for creator approval.');
+            } else if (existingApplication && existingApplication.status === 'rejected') {
+              setApplyStatus('❌ Your application for this trip was declined.');
+            }
+          }
+        }
+
         setLoading(false);
       } catch (error) {
         console.error("Backend not ready yet:", error.message);
@@ -35,14 +60,14 @@ const TripDetails = () => {
           estimatedBudget: 1200,
           travelStyle: "Adventure",
           targetVibe: "Nature & Hiking",
-          creatorId: { name: "Pratap Sagar" }, 
+          creatorId: "fallback-id", 
           applicants: []
         });
         setLoading(false);
       }
     };
     fetchTrip();
-  }, [id]);
+  }, [id, currentUserId]); // 💥 Added currentUserId here to re-evaluate when users swap profiles!
 
 // Dynamic button handler based on mode
   const handleAction = async () => {

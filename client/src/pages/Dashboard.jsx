@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'; // 💥 FIXED: Imported Link for clean internal navigation
 import axios from 'axios';
 
 const Dashboard = () => {
   const [myTrips, setMyTrips] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Hardcoding your ID as the logged-in Creator
-  const currentUserId = '6a13106183dffcf4cf5e0bf4';
+  // 💥 FIXED: Dynamically extract the real logged-in user from localStorage
+  const loggedInUser = localStorage.getItem('user');
+  const currentUser = loggedInUser ? JSON.parse(loggedInUser) : null;
+  const currentUserId = currentUser ? currentUser.id : null;
 
   useEffect(() => {
     const fetchMyTrips = async () => {
+      if (!currentUserId) return; // Prevent raw undefined server lookups
       try {
-        // 💥 FIXED: Updated route to match our backend (/user/ instead of /creator/)
         const response = await axios.get(`http://localhost:5000/api/trips/user/${currentUserId}`);
         setMyTrips(response.data);
         setLoading(false);
@@ -35,7 +38,7 @@ const Dashboard = () => {
       }
     };
     fetchMyTrips();
-  }, []);
+  }, [currentUserId]);
 
   // Handle Approving or Rejecting an applicant
   const handleDecision = async (tripId, applicantId, decision) => {
@@ -49,13 +52,10 @@ const Dashboard = () => {
       
       setMyTrips(prevTrips => prevTrips.map(trip => {
         if (trip._id === tripId) {
-          // Look for the applicant using either _id (dummy data) or userId (real DB)
           const applicantToMove = trip.applicants.find(a => a._id === applicantId || a.userId === applicantId);
           return {
             ...trip,
-            // Filter them out of the pending list
             applicants: trip.applicants.filter(a => a._id !== applicantId && a.userId !== applicantId),
-            // If approved, push them to approvedMembers array
             approvedMembers: decision === 'approve' 
               ? [...(trip.approvedMembers || []), applicantToMove] 
               : trip.approvedMembers
@@ -95,9 +95,10 @@ const Dashboard = () => {
                 </div>
                 
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                  <a href={`/budget/${trip._id}`} style={{ background: '#f59e0b', color: 'white', padding: '0.5rem 1rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                  {/* 💥 FIXED: Converted to a dynamic React Router Link matching our standard /ledger/ endpoint path */}
+                  <Link to={`/ledger/${trip._id}`} style={{ background: '#f59e0b', color: 'white', padding: '0.5rem 1rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>
                     View Ledger
-                  </a>
+                  </Link>
                   <div style={{ background: '#0284c7', color: 'white', padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: 'bold', fontSize: '0.9rem' }}>
                     {trip.approvedMembers?.length || 0} Joined
                   </div>
@@ -113,7 +114,6 @@ const Dashboard = () => {
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     {trip.applicants.filter(a => a.status === 'pending' || !a.status).map((applicant, index) => {
-                      // Handle both real DB logic and dummy data fallback safely
                       const applicantId = applicant.userId || applicant._id;
                       const applicantName = applicant.name || `Traveler ${String(applicantId).substring(0, 4)}`;
 

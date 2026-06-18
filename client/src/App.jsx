@@ -6,8 +6,8 @@ import CreateTrip from './pages/CreateTrip';
 import TripDetails from './pages/TripDetails';
 import Dashboard from './pages/Dashboard';
 import ChatRoom from './pages/ChatRoom';
-import BudgetSplitter from './pages/BudgetSplitter';
-import UserProfile from './pages/UserProfile'; // Fixed typo in import path
+import BudgetSplitter from './pages/BudgetSplitter'; // 💥 This is your ledger file!
+import UserProfile from './pages/UserProfile'; 
 import Matches from './pages/Matches';
 import Login from './pages/Login';
 
@@ -18,6 +18,8 @@ function App() {
       
       {/* The Routes decide which page content to load based on the URL */}
       <Routes>
+        {/* 💥 FIXED: Linked View Ledger directly to your BudgetSplitter file using the :id parameter */}
+        <Route path="/ledger/:id" element={<BudgetSplitter />} />
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/matches" element={<Matches />} />
@@ -26,7 +28,6 @@ function App() {
         <Route path="/destination/:id" element={<TripDetails />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/chat/:tripId" element={<ChatRoom />} />
-        <Route path="/budget/:tripId" element={<BudgetSplitter />} />
         <Route path="/login" element={<Login />} />
       </Routes>
     </div>
