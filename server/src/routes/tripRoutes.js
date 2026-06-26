@@ -1,25 +1,25 @@
 import express from 'express';
-// 💥 Import our new getTripById function
-import { createTrip, getAllTrips, getTripById, updateApplicationStatus, applyForTrip, getUserTrips } from '../controllers/tripController.js'; 
+import { 
+  createTrip, 
+  getAllTrips, 
+  getTripById, 
+  updateApplicationStatus, 
+  applyForTrip, 
+  getUserTrips,
+  deleteTrip // 💥 FIXED: Cleanly added deleteTrip here without duplicates
+} from '../controllers/tripController.js';
 
 const router = express.Router();
 
-// GET all trips
-router.get('/', getAllTrips);
-
-// 💥 NEW: Fetch trips for a specific user
-router.get('/user/:userId', getUserTrips);
-
-// 💥 GET a single trip by its ID (must come AFTER the '/' route)
-router.get('/:id', getTripById);
-
-// POST a new trip
+// Existing core route endpoints
 router.post('/', createTrip);
-
-// 💥 NEW: PUT route for updating application statuses
+router.get('/', getAllTrips);
+router.get('/:id', getTripById);
+router.get('/user/:userId', getUserTrips);
+router.post('/:id/apply', applyForTrip);
 router.put('/:id/status', updateApplicationStatus);
 
-// 💥 NEW: POST route for applying to a trip
-router.post('/:id/apply', applyForTrip);
+// 💥 NEW: Secure deletion route endpoint
+router.delete('/:id', deleteTrip);
 
 export default router;

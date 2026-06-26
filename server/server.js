@@ -11,12 +11,13 @@ import tripRoutes from './src/routes/tripRoutes.js';
 import matchRoutes from './src/routes/matchRoutes.js';
 import expenseRoutes from './src/routes/expenseRoutes.js';
 import authRoutes from './src/routes/authRoutes.js';
+import router from './src/routes/userRoutes.js';
 
 dotenv.config();
 
 const app = express();
 
-// --- 1. GLOBAL MIDDLEWARES (Must be at the very top!) ---
+// --- 1. GLOBAL MIDDLEWARES ---
 app.use(express.json()); // Essential for reading req.body
 app.use(cors());         // Essential for cross-origin frontend requests
 
@@ -29,8 +30,8 @@ const io = new Server(server, {
   }
 });
 
-// --- 3. API ROUTES (Grouped cleanly together) ---
-app.use('/api/auth', authRoutes); // 💥 FIXED: Now positioned safely below express.json()
+// --- 3. API ROUTES ---
+app.use('/api/auth', authRoutes); 
 app.use('/api/users', userRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/matches', matchRoutes);
@@ -59,9 +60,10 @@ const PORT = process.env.PORT || 5000;
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
-    console.log('MongoDB Connected');
+    console.log('MongoDB Connected Successfully! 🚀');
     server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
   })
-  .catch((err) => console.log(err));
+  .catch((err) => console.log('❌ Database connection error:', err));
+
