@@ -1,13 +1,3 @@
-Home : Add nice background image, Add solo trip function (if anyone wants a solo trip he will get the idea.), Add information about the place listed on home page (this is from the website owner where other people can join as group or solo).
 
-Post a trip : Add the posted trip plan on home page in different section like create a banner where the posted trips will be shown pretty much same as home page just in different page.
-
-Ledger : Move this from navbar to different location (like where the people from group can access it.)
-
-Matches : In this section add clickable action (like when we click someone's name it shows there interest past travelling done and more info like social media post. )
-
-
-
-3. Add option to delete the posted trip to the person(based on email id).
 
 4. Also have to think about the place where people can upload their images of trips like Instagram.
