@@ -1,4 +1,4 @@
-import Trip from '../models/Trip.js';
+import Trip from '../models/TripModel.js';
 import User from '../models/User.js';
 
 // POST: Create a new trip
