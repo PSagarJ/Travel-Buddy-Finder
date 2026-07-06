@@ -5,8 +5,11 @@ import axios from "axios";
 const BudgetSplitter = () => {
   const { id } = useParams();
 
+  // 🌐 Define the dynamic base URL
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
   const [trip, setTrip] = useState(null);
-  const [expenses, setExpenses] = useState([]); // 💥 Live array synced with MongoDB
+  const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Form input states
@@ -16,24 +19,25 @@ const BudgetSplitter = () => {
 
   const loggedInUser = localStorage.getItem("user");
   const currentUser = loggedInUser ? JSON.parse(loggedInUser) : null;
+  // 🔑 FIX: Extract the ID primitive to safely track in dependencies
+  const currentUserId = currentUser ? currentUser.id : null;
 
   useEffect(() => {
     const loadLedgerData = async () => {
       try {
         // 1. Fetch trip document details
-        const tripResponse = await axios.get(
-          `http://localhost:5000/api/trips/${id}`,
-        );
+        const tripResponse = await axios.get(`${BASE_URL}/api/trips/${id}`);
         setTrip(tripResponse.data);
 
-        // 2. Fetch persistent expenses from our new backend model storage entry
+        // 2. Fetch persistent expenses
         const expenseResponse = await axios.get(
-          `http://localhost:5000/api/expenses/${id}`,
+          `${BASE_URL}/api/expenses/${id}`,
         );
         setExpenses(expenseResponse.data);
 
-        if (currentUser) {
-          setPaidBy(currentUser.id);
+        // 🔑 FIX: Use the stable primitive ID here
+        if (currentUserId) {
+          setPaidBy(currentUserId);
         }
 
         setLoading(false);
@@ -43,7 +47,10 @@ const BudgetSplitter = () => {
       }
     };
     loadLedgerData();
-  }, [id]);
+    // 🔑 FIX: Added currentUserId safely to the array
+  }, [id, BASE_URL, currentUserId]);
+
+  // ... rest of your handleAddExpense function and return statement stay exactly the same!
 
   // Handle adding an expense permanently to MongoDB
   const handleAddExpense = async (e) => {
@@ -71,11 +78,8 @@ const BudgetSplitter = () => {
     };
 
     try {
-      // 💥 Push the expense directly down into MongoDB!
-      const response = await axios.post(
-        "http://localhost:5000/api/expenses",
-        payload,
-      );
+      // 🚀 STEP 4: Swapped out hardcoded string for template literal syntax (axios.post)
+      const response = await axios.post(`${BASE_URL}/api/expenses`, payload);
 
       // Prepend the saved backend record right into our active visual UI layout state
       setExpenses([response.data, ...expenses]);

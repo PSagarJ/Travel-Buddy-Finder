@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 
 const Dashboard = () => {
+  // 🌐 STEP 1: Define the dynamic base URL at the top so all functions can see it
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
   const [myTrips, setMyTrips] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -14,8 +17,9 @@ const Dashboard = () => {
     const fetchMyTrips = async () => {
       if (!currentUserId) return;
       try {
+        // 🚀 STEP 2: Swapped out localhost for the dynamic BASE_URL variable (axios.get)
         const response = await axios.get(
-          `http://localhost:5000/api/trips/user/${currentUserId}`,
+          `${BASE_URL}/api/trips/user/${currentUserId}`,
         );
         setMyTrips(response.data);
         setLoading(false);
@@ -25,12 +29,14 @@ const Dashboard = () => {
       }
     };
     fetchMyTrips();
-  }, [currentUserId]);
+  }, [currentUserId, BASE_URL]);
 
   const handleDecision = async (tripId, applicantId, decision) => {
     try {
       const dbStatus = decision === "approve" ? "approved" : "rejected";
-      await axios.put(`http://localhost:5000/api/trips/${tripId}/status`, {
+
+      // 🚀 STEP 3: Swapped out localhost for the dynamic BASE_URL variable here too (axios.put)
+      await axios.put(`${BASE_URL}/api/trips/${tripId}/status`, {
         userId: applicantId,
         status: dbStatus,
       });
