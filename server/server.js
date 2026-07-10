@@ -11,6 +11,7 @@ import tripRoutes from './src/routes/tripRoutes.js';
 import matchRoutes from './src/routes/matchRoutes.js';
 import expenseRoutes from './src/routes/expenseRoutes.js';
 import authRoutes from './src/routes/authRoutes.js';
+import postRoutes from './src/routes/postRoutes.js';
 import router from './src/routes/userRoutes.js';
 
 dotenv.config();
@@ -19,10 +20,7 @@ const app = express();
 
 // --- 1. GLOBAL MIDDLEWARES ---
 app.use(express.json()); // Essential for reading req.body
-app.use(cors({
-  origin: ['http://localhost:5173', 'https://your-new-frontend.onrender.com'],
-  credentials: true
-}));         // Essential for cross-origin frontend requests
+app.use(cors());         // Essential for cross-origin frontend requests
 
 // --- 2. WRAP EXPRESS WITH HTTP SERVER FOR SOCKET.IO ---
 const server = http.createServer(app);
@@ -39,6 +37,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/matches', matchRoutes);
 app.use('/api/expenses', expenseRoutes);
+app.use('/api/posts', postRoutes);
 
 // --- 4. SOCKET.IO CHAT LOGIC ---
 io.on('connection', (socket) => {
@@ -69,4 +68,3 @@ mongoose.connect(process.env.MONGO_URI)
     });
   })
   .catch((err) => console.log('❌ Database connection error:', err));
-
