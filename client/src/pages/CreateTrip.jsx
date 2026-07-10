@@ -1,12 +1,9 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../api/axiosInstance";
 
 const CreateTrip = () => {
   const navigate = useNavigate();
-
-  // 🌐 Define the dynamic base URL for production vs local fallback
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
   const [formData, setFormData] = useState({
     title: "",
@@ -28,18 +25,8 @@ const CreateTrip = () => {
     setStatus("Drafting your itinerary...");
 
     try {
-      // 1. Fetch user data inside the form submission handler
-      const loggedInUser = localStorage.getItem("user");
-      const currentUser = loggedInUser ? JSON.parse(loggedInUser) : null;
-
-      // 2. Build the final request object with the actual logged-in ID
-      const newTrip = {
-        ...formData,
-        creatorId: currentUser ? currentUser.id : null,
-      };
-
-      // 3. Post to backend dynamically 🚀
-      await axios.post(`${BASE_URL}/api/trips`, newTrip);
+      // The server now derives creatorId from your auth token, so we just send the form data
+      await api.post("/api/trips", formData);
 
       setStatus("Trip posted successfully! Redirecting...");
       setTimeout(() => navigate("/dashboard"), 1500);

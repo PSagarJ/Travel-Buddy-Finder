@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios"; // 💥 NEW: Added axios for live API requests
+import api from "../api/axiosInstance";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -17,13 +17,8 @@ const Login = () => {
     setError("");
     setLoading(true);
 
-    // 🌐 STEP 1: Define the dynamic base URL right before the API call
-    const BASE_URL =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-
     try {
-      // 🚀 STEP 2: Swapped the hardcoded URL for the new template literal string
-      const response = await axios.post(`${BASE_URL}/api/auth/login`, formData);
+      const response = await api.post("/api/auth/login", formData);
 
       // Store security credentials
       localStorage.setItem("token", response.data.token);

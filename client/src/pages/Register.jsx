@@ -1,12 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api/axiosInstance";
 
 const Register = () => {
   const navigate = useNavigate();
-
-  // 🌐 Define the dynamic base URL for production Render vs local fallback
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
   const [formData, setFormData] = useState({
     name: "",
@@ -30,10 +27,7 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        `${BASE_URL}/api/auth/register`,
-        formData,
-      );
+      const response = await api.post("/api/auth/register", formData);
 
       // Save secure token and user details to the browser cache
       localStorage.setItem("token", response.data.token);

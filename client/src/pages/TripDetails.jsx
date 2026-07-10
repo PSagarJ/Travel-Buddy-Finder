@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../api/axiosInstance";
 
 const TripDetails = () => {
   const { id } = useParams();
   const location = useLocation(); // 💥 Captures the secret data from the Home page
-
-  // 🌐 Define the dynamic base URL for production vs local fallback
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,7 +23,7 @@ const TripDetails = () => {
     const fetchTrip = async () => {
       try {
         // Dynamic fetch request based on environment 🚀
-        const response = await axios.get(`${BASE_URL}/api/trips/${id}`);
+        const response = await api.get(`/api/trips/${id}`);
         const tripData = response.data;
         setTrip(tripData);
 
@@ -93,7 +90,7 @@ const TripDetails = () => {
       }
     };
     fetchTrip();
-  }, [id, currentUserId, BASE_URL]); // Added BASE_URL dependency safely
+  }, [id, currentUserId]);
 
   // Dynamic button handler based on mode
   const handleAction = async () => {
@@ -138,10 +135,8 @@ Notes: This is your curated solo adventure. Have a great trip!
 
     setApplyStatus("Sending application...");
     try {
-      // Dynamic route mapping based on deployment network pipe 🚀
-      await axios.post(`${BASE_URL}/api/trips/${id}/apply`, {
-        userId: currentUserId,
-      });
+      // Server now identifies you from your auth token, no need to send userId
+      await api.post(`/api/trips/${id}/apply`);
       setApplyStatus("Application successful! Waiting for approval.");
     } catch (error) {
       if (error.response && error.response.data) {

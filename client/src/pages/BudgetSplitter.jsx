@@ -1,12 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../api/axiosInstance";
 
 const BudgetSplitter = () => {
   const { id } = useParams();
-
-  // 🌐 Define the dynamic base URL
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
   const [trip, setTrip] = useState(null);
   const [expenses, setExpenses] = useState([]);
@@ -26,13 +23,11 @@ const BudgetSplitter = () => {
     const loadLedgerData = async () => {
       try {
         // 1. Fetch trip document details
-        const tripResponse = await axios.get(`${BASE_URL}/api/trips/${id}`);
+        const tripResponse = await api.get(`/api/trips/${id}`);
         setTrip(tripResponse.data);
 
         // 2. Fetch persistent expenses
-        const expenseResponse = await axios.get(
-          `${BASE_URL}/api/expenses/${id}`,
-        );
+        const expenseResponse = await api.get(`/api/expenses/${id}`);
         setExpenses(expenseResponse.data);
 
         // 🔑 FIX: Use the stable primitive ID here
@@ -47,8 +42,7 @@ const BudgetSplitter = () => {
       }
     };
     loadLedgerData();
-    // 🔑 FIX: Added currentUserId safely to the array
-  }, [id, BASE_URL, currentUserId]);
+  }, [id, currentUserId]);
 
   // ... rest of your handleAddExpense function and return statement stay exactly the same!
 
@@ -78,8 +72,7 @@ const BudgetSplitter = () => {
     };
 
     try {
-      // 🚀 STEP 4: Swapped out hardcoded string for template literal syntax (axios.post)
-      const response = await axios.post(`${BASE_URL}/api/expenses`, payload);
+      const response = await api.post("/api/expenses", payload);
 
       // Prepend the saved backend record right into our active visual UI layout state
       setExpenses([response.data, ...expenses]);
