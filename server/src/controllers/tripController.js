@@ -4,15 +4,13 @@ import User from '../models/User.js';
 // POST: Create a new trip
 export const createTrip = async (req, res) => {
   try {
-    console.log("📥 Incoming Trip Data from React:", req.body); 
-
-    const newTrip = new Trip(req.body);
+    // The creator is whoever is authenticated, not whatever the client claims
+    const newTrip = new Trip({ ...req.body, creatorId: req.user.id });
     const savedTrip = await newTrip.save();
-    
-    console.log("✅ Trip successfully saved to MongoDB!");
+
     res.status(201).json(savedTrip);
   } catch (error) {
-    console.error("❌ CRITICAL ERROR SAVING TRIP:", error.message);
+    console.error("Error creating trip:", error.message);
     res.status(500).json({ message: 'Error creating trip', error: error.message });
   }
 };
@@ -20,7 +18,7 @@ export const createTrip = async (req, res) => {
 // GET all trips for the Community Board
 export const getAllTrips = async (req, res) => {
   try {
-    const trips = await Trip.find().sort({ createdAt: -1 }); 
+    const trips = await Trip.find().sort({ createdAt: -1 });
     res.status(200).json(trips);
   } catch (error) {
     console.error("Error fetching trips:", error);
@@ -32,11 +30,11 @@ export const getAllTrips = async (req, res) => {
 export const getTripById = async (req, res) => {
   try {
     const trip = await Trip.findById(req.params.id);
-    
+
     if (!trip) {
       return res.status(404).json({ message: 'Trip not found' });
     }
-    
+
     res.status(200).json(trip);
   } catch (error) {
     console.error("Error fetching single trip:", error);
@@ -47,8 +45,8 @@ export const getTripById = async (req, res) => {
 // POST: Apply to join a trip
 export const applyForTrip = async (req, res) => {
   try {
-    const { id } = req.params; 
-    const { userId } = req.body; 
+    const { id } = req.params;
+    const userId = req.user.id; // from verified token, not req.body
 
     const trip = await Trip.findById(id);
     if (!trip) {
@@ -64,13 +62,13 @@ export const applyForTrip = async (req, res) => {
     const applicantName = user ? user.name : 'Explorer';
     const applicantStyle = user ? user.travelStyle : 'Chill';
 
-    trip.applicants.push({ 
-      userId, 
-      name: applicantName, 
-      travelStyle: applicantStyle, 
-      status: 'pending' 
+    trip.applicants.push({
+      userId,
+      name: applicantName,
+      travelStyle: applicantStyle,
+      status: 'pending'
     });
-    
+
     await trip.save();
     res.status(200).json({ message: 'Application successful!', trip });
   } catch (error) {
@@ -82,12 +80,17 @@ export const applyForTrip = async (req, res) => {
 // PUT: Update application status (Approve / Reject)
 export const updateApplicationStatus = async (req, res) => {
   try {
-    const { id } = req.params; 
-    const { userId, status } = req.body; 
+    const { id } = req.params;
+    const { userId, status } = req.body; // userId here = the applicant being approved/rejected, not the caller
 
     const trip = await Trip.findById(id);
     if (!trip) {
       return res.status(404).json({ message: 'Trip not found' });
+    }
+
+    // Only the trip's creator (the verified caller) may approve/reject applicants
+    if (trip.creatorId !== req.user.id) {
+      return res.status(403).json({ message: 'Unauthorized: Only the trip creator can update application status.' });
     }
 
     const applicant = trip.applicants.find(app => app.userId === userId);
@@ -122,7 +125,6 @@ export const getUserTrips = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    // 💥 UPGRADED: Pulls matching trips where the user is the Host OR an Approved Crew Member
     const trips = await Trip.find({
       $or: [
         { creatorId: userId },
@@ -140,16 +142,15 @@ export const getUserTrips = async (req, res) => {
 // DELETE: Safely remove a trip entry from MongoDB
 export const deleteTrip = async (req, res) => {
   try {
-    const { id } = req.params; // Trip ID from URL parameters
-    const { userId } = req.body; // User ID passed from frontend local session verification
+    const { id } = req.params;
 
     const trip = await Trip.findById(id);
     if (!trip) {
       return res.status(404).json({ message: 'Trip not found' });
     }
 
-    // 🔒 GUARD PRIVILEGE CHECK: Ensure only the true host can drop the document
-    if (trip.creatorId !== userId) {
+    // Only the verified, authenticated creator can delete — not whoever the client claims to be
+    if (trip.creatorId !== req.user.id) {
       return res.status(403).json({ message: 'Unauthorized: Only the creator can delete this trip listing.' });
     }
 

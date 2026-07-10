@@ -1,10 +1,7 @@
 import express from 'express';
-import { registerUser } from '../controllers/userController.js';
+import User from '../models/User.js';
 
 const router = express.Router();
-
-// When a POST request hits /register, run the registerUser function
-router.post('/register', registerUser);
 
 // GET: Fetch a single user's public profile
 router.get('/:id', async (req, res) => {

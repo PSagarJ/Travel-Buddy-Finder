@@ -1,25 +1,26 @@
 import express from 'express';
-import { 
-  createTrip, 
-  getAllTrips, 
-  getTripById, 
-  updateApplicationStatus, 
-  applyForTrip, 
+import {
+  createTrip,
+  getAllTrips,
+  getTripById,
+  updateApplicationStatus,
+  applyForTrip,
   getUserTrips,
-  deleteTrip // 💥 FIXED: Cleanly added deleteTrip here without duplicates
+  deleteTrip
 } from '../controllers/tripController.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Existing core route endpoints
-router.post('/', createTrip);
+// Public: anyone can browse trips
 router.get('/', getAllTrips);
 router.get('/:id', getTripById);
 router.get('/user/:userId', getUserTrips);
-router.post('/:id/apply', applyForTrip);
-router.put('/:id/status', updateApplicationStatus);
 
-// 💥 NEW: Secure deletion route endpoint
-router.delete('/:id', deleteTrip);
+// Protected: must be logged in
+router.post('/', protect, createTrip);
+router.post('/:id/apply', protect, applyForTrip);
+router.put('/:id/status', protect, updateApplicationStatus);
+router.delete('/:id', protect, deleteTrip);
 
 export default router;

@@ -1,13 +1,13 @@
 import express from 'express';
 import { addExpense, getTripExpenses } from '../controllers/expenseController.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// 💥 POST requests to http://localhost:5000/api/expenses
-router.post('/', addExpense);
+// POST requests to http://localhost:5000/api/expenses
+router.post('/', protect, addExpense);
 
-// 💥 GET requests to http://localhost:5000/api/expenses/:tripId
-router.get('/:tripId', getTripExpenses);
+// GET requests to http://localhost:5000/api/expenses/:tripId
+router.get('/:tripId', protect, getTripExpenses);
 
-// 🚨 THIS IS WHERE THE EXPORT BELONGS!
 export default router;

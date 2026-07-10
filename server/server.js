@@ -19,7 +19,10 @@ const app = express();
 
 // --- 1. GLOBAL MIDDLEWARES ---
 app.use(express.json()); // Essential for reading req.body
-app.use(cors());         // Essential for cross-origin frontend requests
+app.use(cors({
+  origin: ['http://localhost:5173', 'https://your-new-frontend.onrender.com'],
+  credentials: true
+}));         // Essential for cross-origin frontend requests
 
 // --- 2. WRAP EXPRESS WITH HTTP SERVER FOR SOCKET.IO ---
 const server = http.createServer(app);
