@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { createPost, getAllPosts, getUserPosts, deletePost } from '../controllers/postController.js';
+import { createPost, getAllPosts, getUserPosts, getTripPosts, deletePost } from '../controllers/postController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -21,6 +21,7 @@ const upload = multer({
 // Public: anyone can browse the feed
 router.get('/', getAllPosts);
 router.get('/user/:userId', getUserPosts);
+router.get('/trip/:tripId', getTripPosts);
 
 // Protected: must be logged in to post or delete
 router.post('/', protect, upload.single('image'), createPost);

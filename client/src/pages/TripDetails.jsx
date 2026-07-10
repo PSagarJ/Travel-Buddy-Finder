@@ -9,6 +9,7 @@ const TripDetails = () => {
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
   const [applyStatus, setApplyStatus] = useState("");
+  const [tripPosts, setTripPosts] = useState([]);
 
   // 💥 Determine if the user clicked the "Solo" button on the Home page
   const mode = location.state?.mode || "group";
@@ -91,6 +92,18 @@ const TripDetails = () => {
     };
     fetchTrip();
   }, [id, currentUserId]);
+
+  useEffect(() => {
+    const fetchTripPosts = async () => {
+      try {
+        const response = await api.get(`/api/posts/trip/${id}`);
+        setTripPosts(response.data);
+      } catch (error) {
+        console.error("Error loading trip photos:", error.message);
+      }
+    };
+    fetchTripPosts();
+  }, [id]);
 
   // Dynamic button handler based on mode
   const handleAction = async () => {
@@ -404,6 +417,61 @@ Notes: This is your curated solo adventure. Have a great trip!
             )}
           </div>
         </div>
+      </div>
+
+      {/* Trip photos */}
+      <div style={{ marginTop: "2rem" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "1rem",
+          }}
+        >
+          <h2 style={{ margin: 0, fontSize: "1.3rem", color: "#1f2937" }}>
+            Trip photos
+          </h2>
+          <Link
+            to={`/feed?tripId=${trip._id}&destination=${encodeURIComponent(trip.destination)}`}
+            style={{
+              textDecoration: "none",
+              color: "#0284c7",
+              fontWeight: "bold",
+              fontSize: "0.9rem",
+            }}
+          >
+            Share a photo &rarr;
+          </Link>
+        </div>
+
+        {tripPosts.length === 0 ? (
+          <p style={{ color: "#94a3b8", fontSize: "0.9rem" }}>
+            No photos shared for this trip yet.
+          </p>
+        ) : (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+              gap: "0.75rem",
+            }}
+          >
+            {tripPosts.map((post) => (
+              <img
+                key={post._id}
+                src={post.imageUrl}
+                alt={post.caption || "Trip photo"}
+                style={{
+                  width: "100%",
+                  height: "150px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                }}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

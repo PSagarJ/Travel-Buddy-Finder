@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import api from "../api/axiosInstance";
 
 const Feed = () => {
+  const [searchParams] = useSearchParams();
+  const linkedTripId = searchParams.get("tripId") || "";
+
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [caption, setCaption] = useState("");
-  const [destination, setDestination] = useState("");
+  const [destination, setDestination] = useState(
+    searchParams.get("destination") || "",
+  );
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [status, setStatus] = useState("");
@@ -67,6 +72,7 @@ const Feed = () => {
       formData.append("image", imageFile);
       formData.append("caption", caption);
       formData.append("destination", destination);
+      if (linkedTripId) formData.append("tripId", linkedTripId);
 
       const response = await api.post("/api/posts", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -108,6 +114,21 @@ const Feed = () => {
           marginBottom: "2rem",
         }}
       >
+        {linkedTripId && (
+          <div
+            style={{
+              background: "#e0f2fe",
+              color: "#0369a1",
+              fontSize: "0.85rem",
+              fontWeight: "600",
+              padding: "0.5rem 0.75rem",
+              borderRadius: "8px",
+              marginBottom: "1rem",
+            }}
+          >
+            Sharing a photo for this trip
+          </div>
+        )}
         {preview && (
           <img
             src={preview}

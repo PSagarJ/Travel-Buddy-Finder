@@ -70,6 +70,18 @@ export const getUserPosts = async (req, res) => {
   }
 };
 
+// GET: Fetch all posts linked to a single trip
+export const getTripPosts = async (req, res) => {
+  try {
+    const { tripId } = req.params;
+    const posts = await Post.find({ tripId }).sort({ createdAt: -1 });
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error('Error fetching trip posts:', error);
+    res.status(500).json({ message: 'Error fetching trip posts', error: error.message });
+  }
+};
+
 // DELETE: Remove a post (only the author can delete their own post)
 export const deletePost = async (req, res) => {
   try {
