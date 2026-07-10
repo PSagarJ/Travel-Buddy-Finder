@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import { createPost, getAllPosts, getUserPosts, getTripPosts, deletePost } from '../controllers/postController.js';
-import { protect } from '../middleware/authMiddleware.js';
+import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
