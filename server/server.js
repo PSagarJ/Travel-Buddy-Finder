@@ -5,6 +5,8 @@ import cors from 'cors';
 import http from 'http'; 
 import { Server } from 'socket.io'; 
 
+dotenv.config();
+
 // Import Routes
 import userRoutes from './src/routes/userRoutes.js';
 import tripRoutes from './src/routes/tripRoutes.js';
@@ -14,7 +16,7 @@ import authRoutes from './src/routes/authRoutes.js';
 import postRoutes from './src/routes/postRoutes.js';
 import router from './src/routes/userRoutes.js';
 
-dotenv.config();
+// dotenv.config(); //removed from this line to above 
 
 const app = express();
 
