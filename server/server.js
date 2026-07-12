@@ -5,8 +5,6 @@ import cors from 'cors';
 import http from 'http'; 
 import { Server } from 'socket.io'; 
 
-dotenv.config();
-
 // Import Routes
 import userRoutes from './src/routes/userRoutes.js';
 import tripRoutes from './src/routes/tripRoutes.js';
@@ -16,19 +14,38 @@ import authRoutes from './src/routes/authRoutes.js';
 import postRoutes from './src/routes/postRoutes.js';
 import router from './src/routes/userRoutes.js';
 
-// dotenv.config(); //removed from this line to above 
+dotenv.config();
 
 const app = express();
 
+// Origins allowed to call this API — local dev plus the deployed frontend.
+// Add CLIENT_URL as an env var on Render if you ever change/add a frontend domain.
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://travel-buddy-finder-frontend.onrender.com",
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. curl, server-to-server) and known origins
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+
 // --- 1. GLOBAL MIDDLEWARES ---
 app.use(express.json()); // Essential for reading req.body
-app.use(cors());         // Essential for cross-origin frontend requests
+app.use(cors(corsOptions)); // Essential for cross-origin frontend requests
 
 // --- 2. WRAP EXPRESS WITH HTTP SERVER FOR SOCKET.IO ---
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", 
+    origin: allowedOrigins,
     methods: ["GET", "POST"]
   }
 });
