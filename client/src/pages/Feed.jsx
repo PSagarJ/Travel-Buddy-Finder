@@ -16,6 +16,7 @@ const Feed = () => {
   const [preview, setPreview] = useState(null);
   const [status, setStatus] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
 
   const loggedInUser = localStorage.getItem("user");
   const currentUser = loggedInUser ? JSON.parse(loggedInUser) : null;
@@ -92,7 +93,7 @@ const Feed = () => {
   };
 
   return (
-    <div style={{ maxWidth: "600px", margin: "2rem auto", padding: "0 1rem" }}>
+    <div style={{ maxWidth: "935px", margin: "2rem auto", padding: "0 1rem" }}>
       <h1
         style={{
           fontSize: "1.75rem",
@@ -112,6 +113,7 @@ const Feed = () => {
           borderRadius: "12px",
           padding: "1.25rem",
           marginBottom: "2rem",
+          maxWidth: "500px",
         }}
       >
         {linkedTripId && (
@@ -221,55 +223,153 @@ const Feed = () => {
           No travel photos yet. Be the first to share one!
         </p>
       ) : (
-        <div
-          style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
-        >
-          {posts.map((post) => (
-            <div
-              key={post._id}
-              style={{
-                border: "1px solid #e2e8f0",
-                borderRadius: "12px",
-                overflow: "hidden",
-              }}
-            >
-              <img
-                src={post.imageUrl}
-                alt={post.caption || "Travel photo"}
-                style={{
-                  width: "100%",
-                  maxHeight: "420px",
-                  objectFit: "cover",
-                  display: "block",
-                }}
-              />
-              <div style={{ padding: "0.85rem 1rem" }}>
-                <p
-                  style={{
-                    fontWeight: "bold",
-                    margin: "0 0 0.25rem 0",
-                    color: "#0f172a",
-                  }}
-                >
-                  <Link
-                    to={`/profile/${post.userId}`}
-                    style={{ color: "#0f172a", textDecoration: "none" }}
-                  >
-                    {post.userName}
-                  </Link>
-                  {post.destination && (
-                    <span style={{ color: "#64748b", fontWeight: "normal" }}>
-                      {" "}
-                      · {post.destination}
-                    </span>
-                  )}
-                </p>
-                {post.caption && (
-                  <p style={{ margin: 0, color: "#334155" }}>{post.caption}</p>
-                )}
+        <>
+          <style>{`
+            .photo-grid {
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 4px;
+            }
+            @media (max-width: 768px) {
+              .photo-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 2px;
+              }
+            }
+            .photo-grid-item {
+              position: relative;
+              aspect-ratio: 1 / 1;
+              overflow: hidden;
+              cursor: pointer;
+              background: #e2e8f0;
+            }
+            .photo-grid-item img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+              display: block;
+              transition: transform 0.15s ease;
+            }
+            .photo-grid-item:hover img {
+              transform: scale(1.04);
+            }
+            .photo-grid-overlay {
+              position: absolute;
+              inset: 0;
+              background: rgba(15, 23, 42, 0.55);
+              color: white;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              text-align: center;
+              padding: 0.5rem;
+              font-size: 0.8rem;
+              opacity: 0;
+              transition: opacity 0.15s ease;
+            }
+            .photo-grid-item:hover .photo-grid-overlay {
+              opacity: 1;
+            }
+          `}</style>
+
+          <div className="photo-grid">
+            {posts.map((post) => (
+              <div
+                key={post._id}
+                className="photo-grid-item"
+                onClick={() => setSelectedPost(post)}
+              >
+                <img src={post.imageUrl} alt={post.caption || "Travel photo"} />
+                <div className="photo-grid-overlay">
+                  {post.userName}
+                  {post.destination ? ` · ${post.destination}` : ""}
+                </div>
               </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Lightbox for viewing a single post's full details */}
+      {selectedPost && (
+        <div
+          onClick={() => setSelectedPost(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(15, 23, 42, 0.85)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1rem",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "white",
+              borderRadius: "12px",
+              overflow: "hidden",
+              maxWidth: "500px",
+              width: "100%",
+              maxHeight: "90vh",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <img
+              src={selectedPost.imageUrl}
+              alt={selectedPost.caption || "Travel photo"}
+              style={{
+                width: "100%",
+                maxHeight: "60vh",
+                objectFit: "cover",
+                display: "block",
+              }}
+            />
+            <div style={{ padding: "1rem" }}>
+              <p
+                style={{
+                  fontWeight: "bold",
+                  margin: "0 0 0.25rem 0",
+                  color: "#0f172a",
+                }}
+              >
+                <Link
+                  to={`/profile/${selectedPost.userId}`}
+                  style={{ color: "#0f172a", textDecoration: "none" }}
+                >
+                  {selectedPost.userName}
+                </Link>
+                {selectedPost.destination && (
+                  <span style={{ color: "#64748b", fontWeight: "normal" }}>
+                    {" "}
+                    · {selectedPost.destination}
+                  </span>
+                )}
+              </p>
+              {selectedPost.caption && (
+                <p style={{ margin: 0, color: "#334155" }}>
+                  {selectedPost.caption}
+                </p>
+              )}
+              <button
+                onClick={() => setSelectedPost(null)}
+                style={{
+                  marginTop: "0.85rem",
+                  background: "#f1f5f9",
+                  border: "none",
+                  padding: "0.5rem 1rem",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "0.85rem",
+                }}
+              >
+                Close
+              </button>
             </div>
-          ))}
+          </div>
         </div>
       )}
     </div>
